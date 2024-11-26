@@ -1,37 +1,45 @@
 import {
-    Body,
-    Controller,
-    Get,
-    Param,
-    ParseBoolPipe,
-    ParseIntPipe,
-    Patch,
-    Post,
-    Query,
-    UsePipes
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseBoolPipe,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CreatePropertyDto } from './dto/createProperty.dto';
 import {
-    createPropertySchema,
-    CreatePropertyZodDto,
+  createPropertySchema,
+  CreatePropertyZodDto,
 } from './dto/createPropertyZod.dto';
+import { HeadersDto } from './dto/headers.dto';
 import { ParseIdPipe } from './pipes/parseIdPipe';
+import { RequestHeader } from './pipes/request-header';
 import { ZodValidationPipe } from './pipes/zodValidationPipe';
+import { PropertyService } from './property.service';
 
 @Controller('property')
 export class PropertyController {
+  propertyService: PropertyService;
+  constructor() {
+    this.propertyService = new PropertyService();
+  }
+
   @Get()
-  getProperty(): string {
-    return 'This action returns all properties';
+  findAll() {
+    this.propertyService.findAll();
   }
 
   @Get(':id')
-  getPropertyById(
+  findOne(
     @Param('id', ParseIntPipe) id,
-    @Query('sort', ParseBoolPipe) sort,
-  ): string {
-    console.log(typeof sort);
-    return id;
+    @Query('isActive', ParseBoolPipe) isActive,
+  ) {
+    return { id, isActive };
   }
 
   @Post()
@@ -48,7 +56,9 @@ export class PropertyController {
     @Param('id', ParseIdPipe) id,
     @Body()
     body: CreatePropertyDto,
+    @RequestHeader(new ValidationPipe({ validateCustomDecorators: true }))
+    header: HeadersDto,
   ) {
-    return body;
+    return header;
   }
 }
