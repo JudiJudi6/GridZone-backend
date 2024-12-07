@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const createPropertySchema = z
   .object({
     name: z.string(),
-    description: z.string().min(3, { message: 'dupa' }),
+    description: z.string().min(3, { message: 'dua' }),
     area: z.number().positive(),
   })
   .required();
