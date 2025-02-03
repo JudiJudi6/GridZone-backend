@@ -6,4 +6,4 @@ services:
     environment:
       - MONGODB_DATABASE="gridzone"
     ports:
-      - 27017:27017
+      - 28017:27017

@@ -9,7 +9,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/gridzone', {
+    MongooseModule.forRoot('mongodb://localhost:28017/gridzone', {
       onConnectionCreate: () => {
         console.log('Connected to database');
       },

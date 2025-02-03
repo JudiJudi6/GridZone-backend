@@ -1,11 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
+import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
+import { IdResponseDto } from 'src/helpers/IdResponse.dto';
+import { JwtPayload } from 'src/helpers/JwtPayload';
 import { User } from 'src/schemas/user.schema';
 import { CreateOrUpdateUserDto } from './dto/CreateOrUpdateUser.dto';
-import { IdResponseDto } from 'src/helpers/IdResponse.dto';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -14,20 +15,14 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async retriveUser(email: string, pass: string): Promise<any> {
-    const user = await this.userModel.findOne({ email }).exec();
-    if (user && (await bcrypt.compare(pass, user.password))) {
-      const payload = {
-        id: user.id,
-        name: user.name,
-        surname: user.surname,
-        email: user.email,
-      };
-      return {
-        access_token: this.jwtService.sign(payload),
-      };
+  async retriveUser(user: JwtPayload): Promise<Omit<User, 'password'>> {
+    const userFound = await this.userModel.findOne({ id: user.sub }).exec();
+    console.log(user);
+    if (!userFound) {
+      throw new UnauthorizedException();
     }
-    return null;
+
+    return userFound.toObject();
   }
 
   async registerUser(user: CreateOrUpdateUserDto): Promise<IdResponseDto> {
@@ -41,25 +36,30 @@ export class AuthService {
     return { id: savedUser.id };
   }
 
-  async login(email: string, pass: string): Promise<any> {
-    const userDb = await this.userModel.findOne({ email }).exec();
+  // async validateUser(
+  //   email: string,
+  //   pass: string,
+  // ): Promise<{ email; id } | null> {
+  //   const user = await this.userModel.findOne({ email }).exec();
+  //   if (user && (await bcrypt.compare(pass, user.password))) {
+  //     const { email, id } = user.toObject();
+  //     return { email, id };
+  //   }
+  //   return null;
+  // }
 
-    if (!userDb) {
-      return UnauthorizedException;
+  async login({ email, pass }: { email: string; pass: string }) {
+    const user = await this.userModel.findOne({ email }).exec();
+
+    if (user && (await bcrypt.compare(pass, user.password))) {
+      const { email, id } = user.toObject();
+      const payload = { email, sub: id };
+
+      return {
+        access_token: this.jwtService.sign(payload),
+      };
+    } else {
+      throw new UnauthorizedException('Invalid credentials');
     }
-
-    if (!(await bcrypt.compare(pass, userDb.password))) {
-      return UnauthorizedException;
-    }
-
-    const payload = {
-      id: userDb.id,
-      name: userDb.name,
-      surname: userDb.surname,
-      email: userDb.email,
-    };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
   }
 }
