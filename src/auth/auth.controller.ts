@@ -44,7 +44,7 @@ export class AuthController {
   @ApiResponse({ status: 200, type: OmitType(User, ['password'] as const) })
   getProfile(@Request() req: RequestPayload): Promise<Omit<User, 'password'>> {
     if (!req.user) {
-      throw new Error('User not found in  request');
+      throw new Error('User not found in request');
     }
     return this.authService.retriveUser(req.user);
   }
