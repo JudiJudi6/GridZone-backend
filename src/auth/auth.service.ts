@@ -36,17 +36,17 @@ export class AuthService {
     return { id: savedUser.id };
   }
 
-  // async validateUser(
-  //   email: string,
-  //   pass: string,
-  // ): Promise<{ email; id } | null> {
-  //   const user = await this.userModel.findOne({ email }).exec();
-  //   if (user && (await bcrypt.compare(pass, user.password))) {
-  //     const { email, id } = user.toObject();
-  //     return { email, id };
-  //   }
-  //   return null;
-  // }
+  async validateUser(
+    email: string,
+    pass: string,
+  ): Promise<{ email; id } | null> {
+    const user = await this.userModel.findOne({ email }).exec();
+    if (user && (await bcrypt.compare(pass, user.password))) {
+      const { email, id } = user.toObject();
+      return { email, id };
+    }
+    return null;
+  }
 
   async login({ email, pass }: { email: string; pass: string }) {
     const user = await this.userModel.findOne({ email }).exec();
