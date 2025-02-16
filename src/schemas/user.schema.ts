@@ -30,6 +30,9 @@ export class User {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Office' })
   offices: Office[];
+
+  @Prop({ default: `${process.env.BACKEND_URL}/default-user.png` })
+  avatarUrl: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

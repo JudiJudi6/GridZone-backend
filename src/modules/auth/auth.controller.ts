@@ -1,24 +1,20 @@
 import {
   Body,
   Controller,
-  Get,
   Post,
-  UnauthorizedException,
-  Res,
   Req,
+  Res,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { ApiResponse, OmitType } from '@nestjs/swagger';
-import { IdResponseDto } from 'src/common/helpers/IdResponse.dto';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Request as ExpressRequest, Response } from 'express';
 import { Public } from 'src/common/decorators/public.decorator';
-import { User } from 'src/schemas/user.schema';
+import { IdResponseDto } from 'src/common/helpers/IdResponse.dto';
+import { MessageResponseDto } from 'src/common/helpers/MessageResponse.dto';
 import { AuthService } from './auth.service';
 import { CreateOrUpdateUserDto } from './dto/CreateOrUpdateUser.dto';
-import { LoginUserDto } from './dto/LoginUser.dto';
-import { Response, Request as ExpressRequest } from 'express';
 import { LoginResponseDto } from './dto/LoginResponse.dto';
-import { MessageResponseDto } from 'src/common/helpers/MessageResponse.dto';
-import { CurrentUser } from '../../common/decorators/user.decorator';
-import { JwtPayload } from 'src/common/helpers/JwtPayload';
+import { LoginUserDto } from './dto/LoginUser.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -31,6 +27,7 @@ export class AuthController {
     description: 'User registered successfully',
     type: IdResponseDto,
   })
+  @ApiOperation({ summary: 'Register a new user' })
   async registerUser(
     @Body() user: CreateOrUpdateUserDto,
   ): Promise<IdResponseDto> {
@@ -44,6 +41,7 @@ export class AuthController {
     description: 'User logged in successfully',
     type: LoginResponseDto,
   })
+  @ApiOperation({ summary: 'Login a user' })
   async login(
     @Body() loginDto: LoginUserDto,
     @Res({ passthrough: true }) response: Response,
@@ -67,10 +65,14 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @Public()
   @ApiResponse({
     status: 200,
     description: 'Tokens refreshed successfully',
     type: LoginResponseDto,
+  })
+  @ApiOperation({
+    summary: 'Refresh access token using refresh token if expires',
   })
   async refresh(
     @Req() request: ExpressRequest,
@@ -101,18 +103,9 @@ export class AuthController {
     description: 'User logged out successfully',
     type: MessageResponseDto,
   })
+  @ApiOperation({ summary: 'Logout a user' })
   async logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('refresh_token');
     return { message: 'Logged out successfully' };
-  }
-
-  @Get('profile')
-  @ApiResponse({
-    status: 200,
-    description: 'User profile retrieved successfully',
-    type: OmitType(User, ['password'] as const),
-  })
-  getProfile(@CurrentUser() user: JwtPayload): Promise<Omit<User, 'password'>> {
-    return this.authService.getUser(user);
   }
 }

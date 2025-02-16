@@ -19,17 +19,6 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async getUser(user: JwtPayload): Promise<Omit<User, 'password'>> {
-    const userFound = await this.userModel.findOne({ id: user.sub }).exec();
-    if (!userFound) {
-      throw new UnauthorizedException();
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = userFound.toObject();
-    return userWithoutPassword;
-  }
-
   async registerUser(user: CreateOrUpdateUserDto): Promise<IdResponseDto> {
     const userExists = await this.userModel
       .findOne({ email: user.email.toLowerCase() })
@@ -47,34 +36,6 @@ export class AuthService {
     });
     const savedUser = await createdUser.save();
     return { id: savedUser.id };
-  }
-
-  async validateUser(
-    email: string,
-    pass: string,
-  ): Promise<{ email; id } | null> {
-    const user = await this.userModel
-      .findOne({ email: email.toLowerCase() })
-      .exec();
-    if (user && (await bcrypt.compare(pass, user.password))) {
-      const { email, id } = user.toObject();
-      return { email, id };
-    }
-    return null;
-  }
-
-  private generateTokens(payload: JwtPayload) {
-    const accessToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: '5m',
-    });
-
-    const refreshToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: '1d',
-    });
-
-    return { accessToken, refreshToken };
   }
 
   async login({ email, pass }: { email: string; pass: string }) {
@@ -107,6 +68,9 @@ export class AuthService {
         secret: process.env.JWT_SECRET,
       });
 
+      console.log('token', refreshToken);
+      console.log('payload', payload);
+
       const user = await this.userModel.findOne({ id: payload.sub }).exec();
       if (!user) {
         throw new UnauthorizedException();
@@ -120,5 +84,33 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  async validateUser(
+    email: string,
+    pass: string,
+  ): Promise<{ email; id } | null> {
+    const user = await this.userModel
+      .findOne({ email: email.toLowerCase() })
+      .exec();
+    if (user && (await bcrypt.compare(pass, user.password))) {
+      const { email, id } = user.toObject();
+      return { email, id };
+    }
+    return null;
+  }
+
+  private generateTokens(payload: JwtPayload) {
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '5m',
+    });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '1d',
+    });
+
+    return { accessToken, refreshToken };
   }
 }

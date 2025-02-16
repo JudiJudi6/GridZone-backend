@@ -13,7 +13,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot('mongodb://localhost:28017/gridzone', {
+    MongooseModule.forRoot(process.env.MONGO_URI, {
       onConnectionCreate: () => {
         console.log('Connected to database');
       },
