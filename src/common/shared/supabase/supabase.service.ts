@@ -13,6 +13,7 @@ export class SupabaseService {
   }
 
   async uploadAvatar(userId: string, file: Express.Multer.File) {
+    console.log(file);
     const fileExt = file.originalname.split('.').pop();
     const fileName = `${userId}.${fileExt}`;
     const filePath = `avatars/${fileName}`;

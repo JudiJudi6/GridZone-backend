@@ -13,7 +13,9 @@ export class UsersService {
     private readonly supabaseService: SupabaseService,
   ) {}
 
-  async getUser(user: JwtPayload): Promise<Omit<User, 'password' | 'offices'>> {
+  async getUser(
+    user: JwtPayload,
+  ): Promise<Omit<User, 'password' | 'offices'> & { id: string }> {
     try {
       const userFound = await this.userModel.findOne({ id: user.sub }).exec();
       if (!userFound) {
@@ -24,7 +26,7 @@ export class UsersService {
       const { password, ...userWithoutPassword } = userFound.toObject();
 
       return {
-        id: userWithoutPassword.id,
+        id: userWithoutPassword._id?.toString(),
         email: userWithoutPassword.email,
         name: userWithoutPassword.name,
         surname: userWithoutPassword.surname,

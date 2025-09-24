@@ -44,15 +44,15 @@ export class AuthService {
       .exec();
 
     if (user && (await bcrypt.compare(pass, user.password))) {
-      const { email, id } = user.toObject();
-      const payload = { email, sub: id };
+      const { email, _id } = user.toObject();
+      const payload = { email, sub: _id.toString() };
       const tokens = this.generateTokens(payload);
 
       return {
         access_token: tokens.accessToken,
         refresh_token: tokens.refreshToken,
         user: {
-          id,
+          id: _id,
           email,
           name: user.name,
           surname: user.surname,
@@ -94,8 +94,8 @@ export class AuthService {
       .findOne({ email: email.toLowerCase() })
       .exec();
     if (user && (await bcrypt.compare(pass, user.password))) {
-      const { email, id } = user.toObject();
-      return { email, id };
+      const { email, _id } = user.toObject();
+      return { email, id: _id };
     }
     return null;
   }

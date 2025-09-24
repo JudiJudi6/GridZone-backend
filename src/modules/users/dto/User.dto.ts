@@ -13,7 +13,7 @@ export class UserDto {
   @ApiProperty()
   surname: string;
 
-  @ApiProperty()    
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()

@@ -15,7 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     MongooseModule.forRoot(process.env.MONGO_URI, {
       onConnectionCreate: () => {
-        console.log('Connected to database');
+        console.log('Connecting to database');
       },
     }),
     AuthModule,
