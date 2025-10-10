@@ -17,7 +17,7 @@ export class UsersService {
     user: JwtPayload,
   ): Promise<Omit<User, 'password' | 'offices'> & { id: string }> {
     try {
-      const userFound = await this.userModel.findOne({ id: user.sub }).exec();
+      const userFound = await this.userModel.findOne({ _id: user.sub }).exec();
       if (!userFound) {
         throw new UnauthorizedException();
       }

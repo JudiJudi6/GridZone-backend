@@ -68,10 +68,7 @@ export class AuthService {
         secret: process.env.JWT_SECRET,
       });
 
-      console.log('token', refreshToken);
-      console.log('payload', payload);
-
-      const user = await this.userModel.findOne({ id: payload.sub }).exec();
+      const user = await this.userModel.findOne({ _id: payload.sub }).exec();
       if (!user) {
         throw new UnauthorizedException();
       }
@@ -80,6 +77,7 @@ export class AuthService {
         email: user.email,
         sub: user.id,
       });
+
       return tokens;
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
