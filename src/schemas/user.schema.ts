@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { Office } from './office.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -22,7 +21,7 @@ export class User {
   createdAt: Date;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Office' }] })
-  offices: Office[];
+  offices: string[];
 
   @Prop({ default: () => `${process.env.BACKEND_URL}/default-user.png` })
   avatarUrl: string;
