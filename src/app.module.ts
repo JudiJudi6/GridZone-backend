@@ -8,6 +8,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { ConfigModule } from '@nestjs/config';
 import { OfficeModule } from './modules/offices/offices.module';
+import { ReservationsModule } from './modules/reservations/reservations.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { OfficeModule } from './modules/offices/offices.module';
     AuthModule,
     UsersModule,
     OfficeModule,
+    ReservationsModule,
   ],
   controllers: [AppController],
   providers: [
